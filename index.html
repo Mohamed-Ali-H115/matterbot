@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MatterBot Dashboard</title>
     <link rel="stylesheet" href="index.css">
-    <!-- إضافة مكتبة Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -55,10 +54,6 @@
                     <p>DroneBot always online, the downtimes are rare!</p>
                 </div>
             </div>
-            <div id="servers" style="display:none;">
-                <h2>Your Servers:</h2>
-                <ul id="server-list"></ul>
-            </div>
         </div>
     </main>
     <footer>
@@ -102,75 +97,15 @@
         </div>
     </footer>
 
-    <!-- إضافة سكربت الـ JavaScript -->
     <script>
         const CLIENT_ID = '1085155042119663676';
-        const REDIRECT_URI = 'https://mohamed-ali-h115.github.io/matterbot/index.html';
+        const REDIRECT_URI = 'https://mohamed-ali-h115.github.io/matterbot/servers.html';  // تأكد من تحديثه إلى رابط صفحتك الجديدة
         const API_BASE = 'https://discord.com/api';
 
         document.getElementById('login').addEventListener('click', () => {
             const authUrl = `${API_BASE}/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify%20guilds`;
             window.location.href = authUrl;
         });
-
-        async function fetchAccessToken(code) {
-            try {
-                const response = await axios.post(`${API_BASE}/oauth2/token`, new URLSearchParams({
-                    client_id: CLIENT_ID,
-                    client_secret: '4-kD1WcEO-vodG4fd9C1VkSFSbqp9rYS',
-                    grant_type: 'authorization_code',
-                    code: code,
-                    redirect_uri: REDIRECT_URI
-                }), {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                });
-                return response.data.access_token;
-            } catch (error) {
-                console.error('Error fetching access token:', error);
-                return null;
-            }
-        }
-
-        async function fetchUserData(accessToken) {
-            try {
-                const userResponse = await axios.get(`${API_BASE}/users/@me`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
-                    }
-                });
-                const guildsResponse = await axios.get(`${API_BASE}/users/@me/guilds`, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
-                    }
-                });
-                return { user: userResponse.data, guilds: guildsResponse.data };
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                return null;
-            }
-        }
-
-        async function handleAuth() {
-            const params = new URLSearchParams(window.location.search);
-            const code = params.get('code');
-            if (!code) return;
-
-            const accessToken = await fetchAccessToken(code);
-            if (!accessToken) return;
-
-            const data = await fetchUserData(accessToken);
-            if (!data) return;
-
-            document.querySelector('main').style.display = 'none';
-            const serversDiv = document.getElementById('servers');
-            serversDiv.style.display = 'block';
-            const serverList = document.getElementById('server-list');
-            serverList.innerHTML = data.guilds.map(guild => `<li>${guild.name}</li>`).join('');
-        }
-
-        handleAuth();
     </script>
 </body>
 </html>
