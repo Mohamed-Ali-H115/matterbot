@@ -105,7 +105,7 @@
     <!-- إضافة سكربت الـ JavaScript -->
     <script>
         const CLIENT_ID = '1085155042119663676';
-        const REDIRECT_URI = 'your_redirect_uri';
+        const REDIRECT_URI = 'https://discord.com/oauth2/authorize?client_id=1085155042119663676&response_type=code&redirect_uri=https%3A%2F%2Fmohamed-ali-h115.github.io%2Fmatterbot%2Findex.html&scope=guilds';
         const API_BASE = 'https://discord.com/api';
 
         document.getElementById('login').addEventListener('click', () => {
@@ -117,7 +117,7 @@
             try {
                 const response = await axios.post(`${API_BASE}/oauth2/token`, new URLSearchParams({
                     client_id: CLIENT_ID,
-                    client_secret: 'your_client_secret',
+                    client_secret: '4-kD1WcEO-vodG4fd9C1VkSFSbqp9rYS',
                     grant_type: 'authorization_code',
                     code: code,
                     redirect_uri: REDIRECT_URI
