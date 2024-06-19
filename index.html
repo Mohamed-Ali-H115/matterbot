@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatterBot Dashboard</title>
+    <link rel="stylesheet" href="index.css">
+    <!-- إضافة مكتبة Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Matter<span>Bot</span></h1>
+            <nav>
+                <a href="https://discord.gg/ZC3eq8K9">Support Server</a>
+                <a href="#">Commands</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Dashboard</a>
+            </nav>
+        </div>
+        <hr>
+    </header>
+    <main>
+        <div class="container">
+            <h2>A multifunctional bot for helping <span>Discord</span> servers!</h2>
+            <p>Moderation, Welcomer, Embed Messages, Logs, and more with an easy Dashboard!</p>
+            <div class="buttons">
+                <a href="https://discord.gg/ZC3eq8K9" class="button">Support</a>
+                <a id="login" class="button primary">Dashboard</a>
+            </div>
+            <div id="features" class="features-grid">
+                <div class="feature">
+                    <h3>Welcomer</h3>
+                    <p>A welcome image/message pops up in a chat when a new member joins the server</p>
+                </div>
+                <div class="feature">
+                    <h3>Auto Role</h3>
+                    <p>Assign a role(s) to a new member who joins the server</p>
+                </div>
+                <div class="feature">
+                    <h3>Logs</h3>
+                    <p>DroneBot exclusively offers log system for all the needed logs in your server</p>
+                </div>
+                <div class="feature">
+                    <h3>Embed Messages</h3>
+                    <p>Sends embedded messages into a Discord server, easy setup</p>
+                </div>
+                <div class="feature">
+                    <h3>Auto Responder</h3>
+                    <p>Let the bot respond to the added trigger(s)</p>
+                </div>
+                <div class="feature">
+                    <h3>Uptime</h3>
+                    <p>DroneBot always online, the downtimes are rare!</p>
+                </div>
+            </div>
+            <div id="servers" style="display:none;">
+                <h2>Your Servers:</h2>
+                <ul id="server-list"></ul>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="start-using">
+                <h2>Start using Matter<span>Bot</span></h2>
+                <a href="https://discord.com/oauth2/authorize?client_id=1085155042119663676&permissions=8&integration_type=0&scope=bot" class="button primary">Add to Discord</a>
+            </div>
+            <hr>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Imagine a <span>Discord</span> server</h3>
+                    <div class="social-links">
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Commands</a></li>
+                        <li><a href="#">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-other">
+                    <h4>Other</h4>
+                    <ul>
+                        <li><a href="#">Top.gg</a></li>
+                    </ul>
+                </div>
+                <div class="footer-rules">
+                    <h4>Rules</h4>
+                    <ul>
+                        <li><a href="#">Privacy & Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="transparent-text">© 2024 Copyrights MatterBot. Developed by iDrone</p>
+                <a href="https://discord.com/oauth2/authorize?client_id=1085155042119663676&permissions=8&integration_type=0&scope=bot" class="button primary">Add to Discord</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- إضافة سكربت الـ JavaScript -->
+    <script>
+        const CLIENT_ID = '1085155042119663676';
+        const REDIRECT_URI = 'your_redirect_uri';
+        const API_BASE = 'https://discord.com/api';
+
+        document.getElementById('login').addEventListener('click', () => {
+            const authUrl = `${API_BASE}/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify%20guilds`;
+            window.location.href = authUrl;
+        });
+
+        async function fetchAccessToken(code) {
+            try {
+                const response = await axios.post(`${API_BASE}/oauth2/token`, new URLSearchParams({
+                    client_id: CLIENT_ID,
+                    client_secret: 'your_client_secret',
+                    grant_type: 'authorization_code',
+                    code: code,
+                    redirect_uri: REDIRECT_URI
+                }), {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+                return response.data.access_token;
+            } catch (error) {
+                console.error('Error fetching access token:', error);
+                return null;
+            }
+        }
+
+        async function fetchUserData(accessToken) {
+            try {
+                const userResponse = await axios.get(`${API_BASE}/users/@me`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                const guildsResponse = await axios.get(`${API_BASE}/users/@me/guilds`, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+                return { user: userResponse.data, guilds: guildsResponse.data };
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                return null;
+            }
+        }
+
+        async function handleAuth() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            if (!code) return;
+
+            const accessToken = await fetchAccessToken(code);
+            if (!accessToken) return;
+
+            const data = await fetchUserData(accessToken);
+            if (!data) return;
+
+            document.querySelector('main').style.display = 'none';
+            const serversDiv = document.getElementById('servers');
+            serversDiv.style.display = 'block';
+            const serverList = document.getElementById('server-list');
+            serverList.innerHTML = data.guilds.map(guild => `<li>${guild.name}</li>`).join('');
+        }
+
+        handleAuth();
+    </script>
+</body>
+</html>
